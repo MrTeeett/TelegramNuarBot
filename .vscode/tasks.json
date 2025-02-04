@@ -1,0 +1,43 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+      {
+          "label": "Очистить сборку",
+          "type": "shell",
+          "command": "python build.py clean",
+          "group": {
+              "kind": "build",
+              "isDefault": false
+          },
+          "problemMatcher": []
+      },
+      {
+          "label": "Установить зависимости",
+          "type": "shell",
+          "command": "pip install -r requirements.txt",
+          "group": "build",
+          "problemMatcher": []
+      },
+      {
+          "label": "Собрать для Linux",
+          "type": "shell",
+          "command": "python build.py linux",
+          "group": "build",
+          "problemMatcher": []
+      },
+      {
+          "label": "Собрать для Windows",
+          "type": "shell",
+          "command": "python build.py windows",
+          "group": "build",
+          "problemMatcher": []
+      },
+      {
+          "label": "Собрать для всех платформ",
+          "type": "shell",
+          "command": "python build.py",
+          "group": "build",
+          "problemMatcher": []
+      }
+  ]
+}

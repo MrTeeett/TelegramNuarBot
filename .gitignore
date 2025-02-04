@@ -1,0 +1,20 @@
+# Игнорируем временные файлы PyInstaller
+temp/
+build/
+dist/
+
+# Игнорируем виртуальное окружение Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Файлы настроек PyInstaller
+*.spec
+
+# Настройки и логирование
+log/
+conversations.json
+settings.json

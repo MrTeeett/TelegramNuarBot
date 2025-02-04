@@ -1,0 +1,4 @@
+python-telegram-bot
+tiktoken
+g4f
+curl_cffi
