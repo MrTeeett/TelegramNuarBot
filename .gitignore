@@ -16,5 +16,6 @@ __pycache__/
 
 # Настройки и логирование
 log/
+har_and_cookies/
 conversations.json
 settings.json
