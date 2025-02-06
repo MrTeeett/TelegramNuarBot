@@ -55,6 +55,8 @@ async def generate_ambiance_text(lm_api, system_message: str) -> str:
     Формирует запрос к AI, чтобы сгенерировать атмосферный текст от лица Лео.
     Возвращает HTML-текст, готовый к отправке в Telegram.
     """
+    import g4f
+    
     loop = asyncio.get_running_loop()
     
     # Пример сообщения, как просить AI сгенерировать атмосферу.
@@ -77,8 +79,8 @@ async def generate_ambiance_text(lm_api, system_message: str) -> str:
     ]
 
     # Синхронный вызов AI оборачиваем в executor:
-    ambiance_text, ambiance_image = await loop.run_in_executor(None, lm_api.get_response, messages)
-    return ambiance_text, ambiance_image
+    ambiance_text = await loop.run_in_executor(None, lm_api.get_response, messages, g4f.models.deepseek_v3)
+    return ambiance_text
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.message.from_user.id
@@ -93,7 +95,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # Короткое приветственное сообщение
     await update.message.reply_text(
-        "Привет! Я Элеонора 'Лео' Грей, частный детектив. Давай обсудим дело или просто поболтаем. "
         "Если хочешь очистить историю, используй /reset."
     )
 
@@ -102,7 +103,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     try:
         # 2. Генерируем атмосферный текст через AI
-        ambiance_text, ambiance_image = await generate_ambiance_text(lm_api, SYSTEM_MESSAGE)
+        ambiance_text = await generate_ambiance_text(lm_api, SYSTEM_MESSAGE)
     finally:
         # 3. Останавливаем задачу "печатает..."
         typing_task.cancel()
@@ -112,8 +113,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             pass
 
     # 4. Отправляем атмосферный текст
-    await update.message.reply_text(convert_markdown_to_html(ambiance_text), parse_mode="HTML")
-    await update.message.reply_photo(ambiance_image)
+    await update.message.reply_text(ambiance_text)
 
 
 
@@ -125,8 +125,8 @@ async def reset(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def get_response_async(history):
     loop = asyncio.get_running_loop()
-    response_text, ambiance_image = await loop.run_in_executor(None, lm_api.get_response, history)
-    return response_text, ambiance_image
+    response_text = await loop.run_in_executor(None, lm_api.get_response, history)
+    return response_text
 
 async def send_typing_action(update):
     """Фоновая задача: отправляет статус "печатает" каждые 3 секунды, пока не остановлена."""
@@ -172,7 +172,7 @@ async def process_user_queue(user_id, queue: asyncio.Queue):
                     logger.info(f"Пользователь {user_id} - попытка {attempt_num+1}")
                     
                     # Запрашиваем ответ
-                    response_text, response_image= await get_response_async(history)
+                    response_text = await get_response_async(history)
                     if response_text and response_text.strip():
                         # Если получили непустой ответ, выходим из цикла
                         break
@@ -202,11 +202,7 @@ async def process_user_queue(user_id, queue: asyncio.Queue):
 
         # Логируем и отправляем пользователю
         logger.info(f"{convert_markdown_to_html(response_text)}")
-        await update.message.reply_text(
-            convert_markdown_to_html(response_text),
-            parse_mode="HTML"
-        )
-        await update.message.reply_photo(response_image)
+        await update.message.reply_text(response_text)
 
         # Сигнализируем, что очередь обработана
         queue.task_done()

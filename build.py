@@ -40,10 +40,16 @@ def build_executable(target):
         "--distpath", os.path.join(BUILD_DIR, target),
         "--workpath", TEMP_DIR,
         "--specpath", TEMP_DIR,
+        "--paths", os.path.join(PROJECT_ROOT, ".venv", "Lib", "site-packages"),  # Укажите путь к site-packages
         "--hidden-import", "g4f",
         "--hidden-import", "tiktoken",
         "--hidden-import", "curl_cffi",
-        "--hidden-import", "telegram"
+        "--hidden-import", "telegram.ext",
+        "--hidden-import", "telegram.ext.utils",
+        "--hidden-import", "telegram.constants",
+        "--hidden-import", "telegram._updater",
+        "--collect-all", "python-telegram-bot",
+        "--collect-all", "g4f"
     ]
 
     # Добавляем файлы с абсолютными путями
